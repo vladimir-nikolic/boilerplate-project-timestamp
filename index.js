@@ -32,29 +32,22 @@ app.get ("/api/:data?", (req,res) => {
     res.json({ "unix" : time, "utc": new Date(time).toUTCString()});
     return
   }
-  const formatStringRegex = /^([0-9]{4}).([0-9]|[0-9][0-9]).([0-9]|[0-9][0-9])$/s;
-  const found = data.match(formatStringRegex) 
-  const properStringLen = data.length <=13 ? true :false;
-
-  if (found === null && properStringLen === false) {
-    res.json({error : 'Invalid Date'})
+  
+  if(Date.parse(data)){
+    const time = Date.parse(data);
+    res.json({ unix: time, utc: new Date(time).toUTCString()});
     return
-  }
-  if(found === null && properStringLen === true){
+  }else{
     let intTime = parseInt(data);
-    console.log(intTime)
-    if (intTime < 0 || (intTime / 1000 > 2147483647)) {
+    let newTime = new Date(intTime).toUTCString();
+    if (newTime == 'Invalid Date' || intTime / 1000 > 2147483647 ) {
       res.json({ error: "Invalid Date" });
       return;
     }
-    res.json({ "unix": intTime, "utc": new Date(intTime).toUTCString() });
-    return
+    res.json({ unix: intTime, utc: new Date(intTime).toUTCString() });
+    return;
   }
-  if(found !== null){
-    const intTime = Date.parse(found[0]);
-    res.json({ "unix": intTime, "utc": new Date(intTime).toUTCString() })
-    return
-  }
+  
 
 })
 
@@ -62,4 +55,3 @@ app.get ("/api/:data?", (req,res) => {
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
-

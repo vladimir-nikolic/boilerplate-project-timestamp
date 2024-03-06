@@ -24,32 +24,43 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get ("/api/:data", (req,res) => {
+app.get ("/api/:data?", (req,res) => {
   const {data} = req.params
-  let input;
-  const resp = {
-    unix : '',
-    date : ''
+
+  if(data == null){
+    let time = parseInt(Date.now());
+    res.json({ unix: time, utc: new Date(time).toUTCString()});
+    return
   }
+  const formatStringRegex = /^([0-9]{4}).([0-9]|[0-9][0-9]).([0-9]|[0-9][0-9])$/s;
+  const found = data.match(formatStringRegex) 
+  const properStringLen = data.length <=13 ? true :false;
 
-  let str = `${Date.parse(data)}`;
-
-  if(str == 'NaN'){
-    input = parseInt(data);
+  if (found === null && properStringLen === false) {
+    res.json({error : 'Invalid Date'})
+    return
+  }
+  if(found === null && properStringLen === true){
+    let intTime = parseInt(data);
+    console.log(intTime)
+    if (intTime < 0 || (intTime / 1000 > 2147483647)) {
+      res.json({ error: "Invalid Date" });
+      return;
+    }
+    res.json({ unix: intTime, utc: new Date(intTime).toUTCString() });
+    return
+  }
+  if(found !== null){
     
-  }else{
-    input = Date.parse(data);
+    const intTime = Date.parse(found[0]);
+    res.json({ unix: intTime, utc: new Date(intTime).toUTCString() })
+    return
   }
-  resp.unix = input;
-  let newDate = new Date(resp.unix).toString().split("+");
-  resp.date = newDate[0];
 
-  res.json({ unix : resp.unix, utc : resp.date})
 })
-
-
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
+

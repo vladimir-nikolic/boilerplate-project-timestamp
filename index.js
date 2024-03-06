@@ -29,7 +29,7 @@ app.get ("/api/:data?", (req,res) => {
 
   if(data == null){
     let time = parseInt(Date.now());
-    res.json({ unix: time, utc: new Date(time).toUTCString()});
+    res.json({ "unix" : time, "utc": new Date(time).toUTCString()});
     return
   }
   const formatStringRegex = /^([0-9]{4}).([0-9]|[0-9][0-9]).([0-9]|[0-9][0-9])$/s;
@@ -47,13 +47,12 @@ app.get ("/api/:data?", (req,res) => {
       res.json({ error: "Invalid Date" });
       return;
     }
-    res.json({ unix: intTime, utc: new Date(intTime).toUTCString() });
+    res.json({ "unix": intTime, "utc": new Date(intTime).toUTCString() });
     return
   }
   if(found !== null){
-    
     const intTime = Date.parse(found[0]);
-    res.json({ unix: intTime, utc: new Date(intTime).toUTCString() })
+    res.json({ "unix": intTime, "utc": new Date(intTime).toUTCString() })
     return
   }
 
